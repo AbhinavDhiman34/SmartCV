@@ -7,11 +7,11 @@ const API = axios.create({
 
 // Register User
 export const registerUser = (user) =>
-  API.post("/user/register", user); // ✅ matches backend route
+  API.post("/user/registeruser", user); // ✅ matches backend route
 
 // Login User
 export const loginUser = (user) =>
-  API.post("/user/login", user); // ✅ matches backend route
+  API.post("/user/loginuser", user); // ✅ matches backend route
 
 // Logout User (optional)
 export const logoutUser = () =>

@@ -58,12 +58,17 @@ export const loginUser = asyncHandler(async (req, res) => {
   // Generate access and refresh tokens
 
   const { accessToken, refreshToken } = await generateAccessAndRefreshToken(user._id);
+
+  //save refresh Token
+  user.refreshTokens.push(refreshToken);
+  await user.save();
+
   // Save the refresh token in the user document
-  const loggedInUser = await User.findById(user._id).select("-password -refreshToken");
+  const loggedInUser = await User.findById(user._id).select("-password -refreshTokens");
   const options = {
     httpOnly: true, //only server can modify them
-    secure: true
-
+    secure: true,
+    sameSite: "none"
   };
   return res
     .status(200)
@@ -82,21 +87,20 @@ export const loginUser = asyncHandler(async (req, res) => {
 })
 
 export const logoutUser = asyncHandler(async (req, res) => {
-  await User.findByIdAndUpdate(
-    req.user._id,
-    {
-      $set: {
+  const refreshToken = req.cookies?.refreshToken;
 
-        refreshToken: undefined
-      }
-    },
-    {
-      new: true
-    }
-  )
+  if (!refreshToken) {
+    throw new ApiError(400, "No refresh token found");
+  }
+
+  // Remove only this token from user's session
+  await User.findByIdAndUpdate(req.user._id, {
+    $pull: { refreshTokens: refreshToken }
+  });
   const options = {
     httpOnly: true, //only server can modify them
-    secure: true
+    secure: true,
+    sameSite: "none",
   }
 
   return res
@@ -106,4 +110,23 @@ export const logoutUser = asyncHandler(async (req, res) => {
 
     .json(new ApiResponse(200, {}, "User logged out"))
 
+});
+
+
+export const logoutAllDevices = asyncHandler(async (req, res) => {
+  await User.findByIdAndUpdate(req.user._id, {
+    $set: { refreshTokens: [] }
+  });
+
+  const options = {
+    httpOnly: true,
+    secure: true,
+    sameSite: "none"
+  };
+
+  return res
+    .status(200)
+    .clearCookie("accessToken", options)
+    .clearCookie("refreshToken", options)
+    .json(new ApiResponse(200, {}, "Logged out from all devices"));
 });

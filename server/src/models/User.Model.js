@@ -12,7 +12,10 @@ const userSchema = new mongoose.Schema(
     resumeUsage: { type: Number, default: 0 },
     atsUsage: { type: Number, default: 0 },
     createdAt: { type: Date, default: Date.now },
-    refreshToken: String,
+    refreshTokens: {
+      type: [String],
+      default: [],
+    }
   },
   { timestamps: true }
 );

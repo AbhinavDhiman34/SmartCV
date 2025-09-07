@@ -1,6 +1,6 @@
 import { Router } from "express";
 
-import { registerUser, loginUser, logoutUser, updateResume, downloadResume } from '../controllers/User.Controller.js';
+import { registerUser, loginUser, logoutUser, updateResume, downloadResume, checkauth } from '../controllers/User.Controller.js';
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 import { loginValidator, registerValidator } from "../middlewares/Validators.js";
 
@@ -16,6 +16,6 @@ UserRouter.route('/login').post(loginValidator,loginUser);
 UserRouter.post("/logout", verifyJWT, logoutUser);
 UserRouter.put("/updateresume/:id", verifyJWT, updateResume);
 UserRouter.route('/downloadresume/:id/download').get(verifyJWT, downloadResume);
-
+UserRouter.get("/check",verifyJWT,checkauth)
 
 export default UserRouter;

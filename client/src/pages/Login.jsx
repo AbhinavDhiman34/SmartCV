@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { loginUser } from "../service/UserApi";
 import { Link } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock, ArrowRight } from 'lucide-react';
-
+import { useNavigate } from "react-router-dom";
 function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -10,7 +10,7 @@ function Login() {
     password: ''
   });  
 
-
+  const navigate = useNavigate();
   const handleInputChange = (e) => {
     setFormData({
       ...formData,
@@ -18,20 +18,18 @@ function Login() {
     });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const res = await loginUser(formData);
-      if (res.status === 200) {
-        // SET THE FLAG HERE
-        localStorage.setItem('isLoggedIn', 'true');
-        alert("Login successful!");
-        navigate("/resumedashboard");
-      }
-    } catch (err) {
-      alert("Login failed");
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  try {
+    const res = await loginUser(formData);
+    if (res.status === 200) {
+      navigate("/resumedashboard"); // Only navigate after backend sets cookies
     }
-  };
+  } catch (err) {
+    alert(err.response?.data?.message || "Login failed");
+  }
+};
+
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">

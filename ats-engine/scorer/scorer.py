@@ -78,8 +78,12 @@ def score_resume(text: str, job_description: str):
         print("Error in score_length:", e)
         length_score, length_feedback = 0, ["Length scoring failed."]
 
-    total_score = keyword_score + formatting_score + sentence_score + length_score
-
+    total_score = (keyword_score + formatting_score + sentence_score + length_score) / 4
+    feedback = (
+[f"[Keywords] {msg}" for msg in keyword_feedback] +
+                [f"[Formatting] {msg}" for msg in formatting_feedback] +
+                [f"[Sentence] {msg}" for msg in sentence_feedback] +
+                [f"[Length] {msg}" for msg in length_feedback])
     return {
         "total_score": total_score,
         "score_breakdown": {
@@ -88,5 +92,5 @@ def score_resume(text: str, job_description: str):
             "sentence_structure": sentence_score,
             "length": length_score
         },
-        "feedback": keyword_feedback + formatting_feedback + sentence_feedback + length_feedback
+        "feedback": feedback
     }

@@ -5,12 +5,9 @@ function Home() {
   const navigate = useNavigate();
 
   const handleGetStarted = () => {
-    const isAuthenticated = localStorage.getItem("isLoggedIn") === "true";
-    if (isAuthenticated) {
+    
       navigate("/resumedashboard");
-    } else {
-      navigate("/login");
-    }
+    
   };
   return (
     <div className="min-h-screen bg-gray-50">

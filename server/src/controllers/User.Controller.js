@@ -4,6 +4,7 @@ import { generateAccessAndRefreshToken } from "../utils/GenerateAccessAndRefresh
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResposne.js";
 import { createRequire } from 'module';
+import { tr } from "zod/v4/locales";
 const require = createRequire(import.meta.url);
 const PDFDocument = require('pdfkit');
 
@@ -65,7 +66,8 @@ export const loginUser = asyncHandler(async (req, res) => {
   const loggedInUser = await User.findById(user._id).select("-password -refreshToken");
   const options = {
     httpOnly: true, //only server can modify them
-    secure: true
+    secure: false,
+    sameSite: "lax"
 
   };
   return res
@@ -74,11 +76,12 @@ export const loginUser = asyncHandler(async (req, res) => {
     .cookie("refreshToken", refreshToken, options)
     .json(
       new ApiResponse(
-
+      
         200, {
         user: loggedInUser, accessToken, refreshToken
       },
-        "User logged in successfully"
+        "User logged in successfully",
+        true
       )
     );
 
@@ -231,3 +234,14 @@ export const downloadResume = asyncHandler(async (req, res) => {
   }
   doc.end();
 });
+export const checkauth = (req, res) => {
+  try {
+    res.status(200).json({
+      success: true,
+      user: req.user, // optional but useful for frontend
+    });
+  } catch (error) {
+    console.log("Error in checkAuth controller", error.message);
+    return res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+};
